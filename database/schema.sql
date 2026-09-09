@@ -1,4 +1,3 @@
--- Estrutura conceitual do banco NutriTrack AC1
 CREATE TABLE users (
     id INTEGER PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
