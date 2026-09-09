@@ -1,8 +1,8 @@
-# NutriTrack — AC1
+# NutriTrack
 
 Sistema web para registro de alimentação e acompanhamento de hábitos nutricionais.
 
-## AC1 — Funcionalidades
+## Funcionalidades
 - Cadastro de usuário
 - Login
 - Logout no front-end
@@ -53,10 +53,3 @@ Por padrão, o projeto usa SQLite e cria `backend/nutritrack.db` automaticamente
 Para PostgreSQL, defina:
 `DATABASE_URL=postgresql+psycopg2://usuario:senha@localhost:5432/nutritrack`
 
-## Fluxo da demonstração da AC1
-1. Criar uma conta.
-2. Fazer login.
-3. Cadastrar um alimento.
-4. Mostrar o alimento aparecendo na lista.
-5. Abrir `/docs` e demonstrar os endpoints da API.
-6. Mostrar o arquivo do banco sendo criado.
