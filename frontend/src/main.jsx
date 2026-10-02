@@ -100,7 +100,7 @@ function Dashboard({onLogout}) {
     <main>
       <section className="hero">
         <div>
-          <span className="eyebrow">AC2 • DIÁRIO ALIMENTAR</span>
+          <span className="eyebrow">DIÁRIO ALIMENTAR</span>
           <h1>Sua alimentação, um dia de cada vez.</h1>
           <p>Registre suas refeições e acompanhe os alimentos que fazem parte da sua rotina.</p>
         </div>
