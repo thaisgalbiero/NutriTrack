@@ -27,8 +27,8 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="NutriTrack API",
-    description="API do projeto NutriTrack — AC1",
-    version="1.0.0",
+    description="API do projeto NutriTrack — AC2",
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -81,7 +81,7 @@ def get_current_user(
 def root():
     return {
         "message": "NutriTrack API funcionando",
-        "version": "1.0.0",
+        "version": "2.0.0",
     }
 
 
@@ -184,3 +184,62 @@ def list_foods(
     return db.scalars(
         select(Food).order_by(Food.name)
     ).all()
+
+# AC2 — CRUD de refeições, sempre limitado ao usuário autenticado.
+from datetime import date
+from fastapi import Response
+from .models import Meal, MealItem
+from .schemas import MealCreate, MealResponse
+
+
+def validated_items(data: MealCreate, db: Session):
+    ids = [item.food_id for item in data.items]
+    found = set(db.scalars(select(Food.id).where(Food.id.in_(ids))).all())
+    if set(ids) != found:
+        raise HTTPException(status_code=422, detail="Um dos alimentos não existe no catálogo.")
+    return [MealItem(**item.model_dump()) for item in data.items]
+
+
+def owned_meal(meal_id: int, user: User, db: Session):
+    meal = db.scalar(select(Meal).where(Meal.id == meal_id, Meal.user_id == user.id))
+    if meal is None:
+        raise HTTPException(status_code=404, detail="Refeição não encontrada")
+    return meal
+
+
+@app.post("/meals", response_model=MealResponse, status_code=201)
+def create_meal(data: MealCreate, db: Session = Depends(get_db),
+                current_user: User = Depends(get_current_user)):
+    items = validated_items(data, db)
+    meal = Meal(user_id=current_user.id, **data.model_dump(exclude={"items"}), items=items)
+    db.add(meal)
+    db.commit()
+    db.refresh(meal)
+    return meal
+
+
+@app.get("/meals", response_model=list[MealResponse])
+def list_meals(date: date, db: Session = Depends(get_db),
+               current_user: User = Depends(get_current_user)):
+    return db.scalars(select(Meal).where(Meal.user_id == current_user.id, Meal.date == date)
+                      .order_by(Meal.id)).all()
+
+
+@app.put("/meals/{meal_id}", response_model=MealResponse)
+def update_meal(meal_id: int, data: MealCreate, db: Session = Depends(get_db),
+                current_user: User = Depends(get_current_user)):
+    meal = owned_meal(meal_id, current_user, db)
+    items = validated_items(data, db)
+    meal.date, meal.meal_type, meal.notes = data.date, data.meal_type, data.notes
+    meal.items = items
+    db.commit()
+    db.refresh(meal)
+    return meal
+
+
+@app.delete("/meals/{meal_id}", status_code=204)
+def delete_meal(meal_id: int, db: Session = Depends(get_db),
+                current_user: User = Depends(get_current_user)):
+    db.delete(owned_meal(meal_id, current_user, db))
+    db.commit()
+    return Response(status_code=204)

@@ -11,3 +11,6 @@ frontend/dist/
 # Environment
 .env
 .DS_Store
+
+.vite/
+dist/
