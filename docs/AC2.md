@@ -66,3 +66,6 @@ python -m unittest discover -s tests -v
 ```
 
 O teste utiliza banco temporário próprio e não altera seus dados.
+
+## Horário e visualização do banco
+O cadastro e a edição permitem informar o horário (HH:mm). Refeições anteriores ficam sem horário até serem editadas. A view `vw_refeicoes_detalhadas` exibe os nomes dos alimentos e suas quantidades ao lado da refeição. Consulte [Como o banco funciona](BANCO_DE_DADOS.md).

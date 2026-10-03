@@ -32,6 +32,7 @@ class Meal(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     date: Mapped[date] = mapped_column(Date, index=True)
+    meal_time: Mapped[str | None] = mapped_column(String(5), nullable=True)
     meal_type: Mapped[str] = mapped_column(String(20))
     notes: Mapped[str] = mapped_column(String(500), default="")
     items: Mapped[list["MealItem"]] = relationship(cascade="all, delete-orphan", lazy="selectin")

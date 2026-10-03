@@ -6,7 +6,7 @@ const today = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 };
-const blank = date => ({ date, meal_type: "breakfast", notes: "", items: [{ food_id: "", quantity_g: "100" }] });
+const blank = date => ({ date, meal_time: "", meal_type: "breakfast", notes: "", items: [{ food_id: "", quantity_g: "100" }] });
 
 export default function Meals({ foods, api, onExpired }) {
   const [day, setDay] = useState(today);
@@ -46,7 +46,7 @@ export default function Meals({ foods, api, onExpired }) {
   async function save(e) {
     e.preventDefault(); setBusy(true); setError(""); setNotice("");
     try {
-      const payload = {...form, items: form.items.map(i => ({food_id: Number(i.food_id), quantity_g: Number(i.quantity_g)}))};
+      const payload = {...form, meal_time: form.meal_time || null, items: form.items.map(i => ({food_id: Number(i.food_id), quantity_g: Number(i.quantity_g)}))};
       await api(editing ? `/meals/${editing}` : "/meals", {method: editing ? "PUT" : "POST", body: JSON.stringify(payload)});
       const target = form.date;
       setNotice(editing ? "Refeição atualizada." : "Refeição registrada com sucesso.");
@@ -66,7 +66,7 @@ export default function Meals({ foods, api, onExpired }) {
   }
   function edit(meal) {
     setEditing(meal.id);
-    setForm({date: meal.date, meal_type: meal.meal_type, notes: meal.notes, items: meal.items.map(i => ({food_id: String(i.food_id), quantity_g: String(i.quantity_g)}))});
+    setForm({date: meal.date, meal_time: meal.meal_time || "", meal_type: meal.meal_type, notes: meal.notes, items: meal.items.map(i => ({food_id: String(i.food_id), quantity_g: String(i.quantity_g)}))});
     setNotice(""); setError(""); setDeleting(null);
     formRef.current?.scrollIntoView({behavior: "smooth", block: "start"});
   }
@@ -88,6 +88,7 @@ export default function Meals({ foods, api, onExpired }) {
               <label>Data<input type="date" value={form.date} onChange={e => setForm({...form, date: e.target.value})} required /></label>
               <label>Refeição<select value={form.meal_type} onChange={e => setForm({...form, meal_type: e.target.value})}>{Object.entries(types).map(([k,v]) => <option key={k} value={k}>{v}</option>)}</select></label>
             </div>
+            <label>Horário da refeição (opcional)<input type="time" step="60" value={form.meal_time} onChange={e => setForm({...form, meal_time: e.target.value})} /></label>
             <div className="item-list">{form.items.map((item, index) => <div className="meal-item-input" key={index}>
               <label>Alimento {index+1}<select value={item.food_id} onChange={e => itemChange(index,"food_id",e.target.value)} required>
                 <option value="">Selecione</option>
@@ -109,6 +110,7 @@ export default function Meals({ foods, api, onExpired }) {
           Object.entries(types).map(([type,label]) => {
             const group = meals.filter(m => m.meal_type === type);
             return group.length > 0 && <div key={type} className="meal-group"><h3><span>{icons[type]}</span> {label}</h3>{group.map(meal => <article key={meal.id} className="card meal-entry">
+              <p className="meal-time">{meal.meal_time ? `Horário: ${meal.meal_time}` : "Horário não informado"}</p>
               <ul>{meal.items.map(item => <li key={item.id}><strong>{item.food.name}</strong><span>{item.quantity_g.toLocaleString("pt-BR")} g</span></li>)}</ul>
               {meal.notes && <p className="meal-notes">{meal.notes}</p>}
               <div className="actions">

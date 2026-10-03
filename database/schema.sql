@@ -21,6 +21,7 @@ CREATE TABLE meals (
     id INTEGER PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id),
     date DATE NOT NULL,
+    meal_time VARCHAR(5),
     meal_type VARCHAR(20) NOT NULL CHECK (meal_type IN ('breakfast','lunch','dinner','snack')),
     notes VARCHAR(500) NOT NULL DEFAULT ''
 );
@@ -34,3 +35,22 @@ CREATE TABLE meal_items (
 );
 CREATE INDEX ix_meal_items_meal_id ON meal_items(meal_id);
 -- Ao excluir uma refeição pela API, o ORM remove seus itens na mesma transação.
+
+-- Visualização de leitura: uma linha por alimento de cada refeição.
+CREATE VIEW vw_refeicoes_detalhadas AS
+SELECT m.id AS refeicao_id,
+       m.user_id AS usuario_id,
+       m.date AS data,
+       m.meal_time AS horario,
+       CASE m.meal_type
+         WHEN 'breakfast' THEN 'Café da manhã'
+         WHEN 'lunch' THEN 'Almoço'
+         WHEN 'dinner' THEN 'Jantar'
+         WHEN 'snack' THEN 'Lanche'
+       END AS refeicao,
+       f.name AS alimento,
+       i.quantity_g AS quantidade_g,
+       m.notes AS observacoes
+FROM meals m
+JOIN meal_items i ON i.meal_id = m.id
+JOIN foods f ON f.id = i.food_id;

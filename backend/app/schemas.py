@@ -44,6 +44,7 @@ class MealItemCreate(BaseModel):
 
 class MealCreate(BaseModel):
     date: date
+    meal_time: str | None = Field(default=None, pattern=r"^(?:[01][0-9]|2[0-3]):[0-5][0-9]$")
     meal_type: Literal["breakfast", "lunch", "dinner", "snack"]
     notes: str = Field(default="", max_length=500)
     items: list[MealItemCreate] = Field(min_length=1, max_length=50)
@@ -65,6 +66,7 @@ class MealItemResponse(BaseModel):
 class MealResponse(BaseModel):
     id: int
     date: date
+    meal_time: str | None
     meal_type: str
     notes: str
     items: list[MealItemResponse]

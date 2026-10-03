@@ -23,7 +23,9 @@ from .auth import (
     ALGORITHM,
 )
 
-Base.metadata.create_all(bind=engine)
+from .migrations import initialize_database
+
+initialize_database(engine)
 
 app = FastAPI(
     title="NutriTrack API",
@@ -222,7 +224,7 @@ def create_meal(data: MealCreate, db: Session = Depends(get_db),
 def list_meals(date: date, db: Session = Depends(get_db),
                current_user: User = Depends(get_current_user)):
     return db.scalars(select(Meal).where(Meal.user_id == current_user.id, Meal.date == date)
-                      .order_by(Meal.id)).all()
+                      .order_by(Meal.meal_time.is_(None), Meal.meal_time, Meal.id)).all()
 
 
 @app.put("/meals/{meal_id}", response_model=MealResponse)
@@ -231,6 +233,8 @@ def update_meal(meal_id: int, data: MealCreate, db: Session = Depends(get_db),
     meal = owned_meal(meal_id, current_user, db)
     items = validated_items(data, db)
     meal.date, meal.meal_type, meal.notes = data.date, data.meal_type, data.notes
+    if "meal_time" in data.model_fields_set:
+        meal.meal_time = data.meal_time
     meal.items = items
     db.commit()
     db.refresh(meal)
