@@ -1,6 +1,6 @@
 # NutriTrack — AC2
 
-Sistema web para registro de alimentação e acompanhamento de hábitos nutricionais.
+Sistema web para registro de alimentação de acordo com a hora e acompanhamento de hábitos nutricionais.
 
 ## AC2 — Nova entrega
 Registro, consulta por data, edição e exclusão de refeições com múltiplos alimentos e quantidades em gramas. Os registros são separados por usuário.
