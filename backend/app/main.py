@@ -6,7 +6,7 @@ from sqlalchemy import select
 from jose import jwt, JWTError
 
 from .database import Base, engine, get_db
-from .models import User, Food
+from .models import User, Food, Goal
 from .schemas import (
     UserCreate,
     UserLogin,
@@ -29,8 +29,8 @@ initialize_database(engine)
 
 app = FastAPI(
     title="NutriTrack API",
-    description="API do projeto NutriTrack — AC2",
-    version="2.0.0",
+    description="API do projeto NutriTrack — AC3",
+    version="3.0.0",
 )
 
 app.add_middleware(
@@ -83,7 +83,7 @@ def get_current_user(
 def root():
     return {
         "message": "NutriTrack API funcionando",
-        "version": "2.0.0",
+        "version": "3.0.0",
     }
 
 
@@ -247,3 +247,52 @@ def delete_meal(meal_id: int, db: Session = Depends(get_db),
     db.delete(owned_meal(meal_id, current_user, db))
     db.commit()
     return Response(status_code=204)
+
+from .schemas import GoalUpdate
+NUTRIENTS = ("calories", "protein", "carbs", "fat")
+
+@app.get("/goals")
+def get_goals(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    goal = db.get(Goal, user.id)
+    return {key: getattr(goal, key) for key in NUTRIENTS} if goal else None
+
+@app.put("/goals", response_model=GoalUpdate)
+def save_goals(data: GoalUpdate, db: Session = Depends(get_db),
+               user: User = Depends(get_current_user)):
+    goal = db.get(Goal, user.id)
+    if goal is None:
+        goal = Goal(user_id=user.id, **data.model_dump())
+        db.add(goal)
+    else:
+        for key, value in data.model_dump().items():
+            setattr(goal, key, value)
+    db.commit()
+    return data
+
+@app.get("/dashboard")
+def dashboard(date: date, db: Session = Depends(get_db),
+              user: User = Depends(get_current_user)):
+    meals = db.scalars(select(Meal).where(Meal.user_id == user.id, Meal.date == date)).all()
+    totals = {key: 0.0 for key in NUTRIENTS}
+    for meal in meals:
+        for item in meal.items:
+            for key in NUTRIENTS:
+                totals[key] += getattr(item.food, key) * item.quantity_g / 100
+    goal = db.get(Goal, user.id)
+    goals = {key: getattr(goal, key) for key in NUTRIENTS} if goal else None
+    return {"date": date, "meal_count": len(meals),
+            "totals": {key: round(value, 2) for key, value in totals.items()},
+            "goals": goals,
+            "progress": {key: round(totals[key] / goals[key] * 100, 1)
+                         for key in NUTRIENTS} if goals else None}
+
+# Retorna erros legíveis mesmo para números não finitos enviados fora do navegador.
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(RequestValidationError)
+async def validation_error(request, exc):
+    return JSONResponse(status_code=422, content={"detail": [
+        {"loc": list(error["loc"]), "msg": error["msg"], "type": error["type"]}
+        for error in exc.errors()
+    ]})

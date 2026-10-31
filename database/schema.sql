@@ -54,3 +54,12 @@ SELECT m.id AS refeicao_id,
 FROM meals m
 JOIN meal_items i ON i.meal_id = m.id
 JOIN foods f ON f.id = i.food_id;
+
+-- AC3: metas atuais por usuário
+CREATE TABLE goals (
+    user_id INTEGER PRIMARY KEY REFERENCES users(id),
+    calories FLOAT NOT NULL,
+    protein FLOAT NOT NULL,
+    carbs FLOAT NOT NULL,
+    fat FLOAT NOT NULL
+);

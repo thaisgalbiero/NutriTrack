@@ -23,10 +23,10 @@ class TokenResponse(BaseModel):
 
 class FoodCreate(BaseModel):
     name: str = Field(min_length=2, max_length=120)
-    calories: float = Field(ge=0)
-    protein: float = Field(ge=0)
-    carbs: float = Field(ge=0)
-    fat: float = Field(ge=0)
+    calories: float = Field(ge=0, allow_inf_nan=False)
+    protein: float = Field(ge=0, allow_inf_nan=False)
+    carbs: float = Field(ge=0, allow_inf_nan=False)
+    fat: float = Field(ge=0, allow_inf_nan=False)
 
 class FoodResponse(FoodCreate):
     id: int
@@ -71,3 +71,9 @@ class MealResponse(BaseModel):
     notes: str
     items: list[MealItemResponse]
     model_config = {"from_attributes": True}
+
+class GoalUpdate(BaseModel):
+    calories: float = Field(gt=0, le=20000, allow_inf_nan=False)
+    protein: float = Field(gt=0, le=2000, allow_inf_nan=False)
+    carbs: float = Field(gt=0, le=2000, allow_inf_nan=False)
+    fat: float = Field(gt=0, le=2000, allow_inf_nan=False)

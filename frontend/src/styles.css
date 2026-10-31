@@ -68,3 +68,6 @@ footer { text-align:center; margin:40px 0 20px; color:#7a877e; font-size:12px; }
 @media(max-width:800px) { .meal-grid { grid-template-columns:1fr; } .diary-toolbar { align-items:flex-start; } .diary-toolbar h2 { font-size:19px; } }
 @media(max-width:480px) { .diary-toolbar { flex-direction:column; } .date-filter { width:100%; } .card { padding:20px; } .hero { padding:24px; } .meal-item-input { grid-template-columns:minmax(0,1fr) 100px; } .remove-item { grid-column:2; padding:4px; } .two { grid-template-columns:1fr; } }
 .meal-time { margin:0 0 10px; color:#47604d; font-size:13px; font-weight:600; }
+.nutrition-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:24px 0}.nutrient{padding:22px}.nutrient h2{margin:16px 0;font-size:28px}.nutrient small{font-size:14px;font-weight:400}.nutrient p{font-size:13px}.nutrient progress{width:100%;height:10px;accent-color:#245c3b}.goals{max-width:650px;margin:24px 0}.tabs{flex-wrap:wrap}
+@media(max-width:800px){.nutrition-stats{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.nutrition-stats{grid-template-columns:1fr}}

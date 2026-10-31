@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 import Meals from "./Meals.jsx";
+import Summary from "./Summary.jsx";
 
 const API = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
@@ -106,13 +107,14 @@ function Dashboard({onLogout}) {
         </div>
       </section>
       <nav className="tabs" aria-label="Seções">
+        <button aria-pressed={tab === "summary"} onClick={() => setTab("summary")}>Resumo e metas</button>
         <button aria-pressed={tab === "meals"} onClick={() => setTab("meals")}>Minhas refeições</button>
         <button aria-pressed={tab === "foods"} onClick={() => setTab("foods")}>Alimentos</button>
       </nav>
       {error && <p className="message error" role="alert">{error}</p>}
-      {tab === "meals" ? <Meals foods={foods} api={api} onExpired={onLogout} /> : <section className="grid">
+      {tab === "summary" ? <Summary api={api} onExpired={onLogout}/> : tab === "meals" ? <Meals foods={foods} api={api} onExpired={onLogout} /> : <section className="grid">
         <div className="card">
-          <h2>Cadastrar alimento</h2>
+          <h2>Cadastrar alimento</h2><p className="muted">Valores nutricionais por 100 g. Confira essa unidade também nos alimentos antigos.</p>
           <form onSubmit={addFood}>
             <input aria-label="Nome do alimento" minLength={2} maxLength={120} placeholder="Nome do alimento" value={food.name} onChange={e=>setFood({...food,name:e.target.value})} required />
             <div className="two">
@@ -130,7 +132,7 @@ function Dashboard({onLogout}) {
           <div className="food-list">{foods.map(f=>
             <div className="food" key={f.id}>
               <strong>{f.name}</strong>
-              <span>{f.calories} kcal • P {f.protein}g • C {f.carbs}g • G {f.fat}g</span>
+              <span>Por 100 g: {f.calories} kcal • P {f.protein}g • C {f.carbs}g • G {f.fat}g</span>
             </div>
           )}</div>}
         </div>

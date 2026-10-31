@@ -46,3 +46,12 @@ class MealItem(Base):
     quantity_g: Mapped[float] = mapped_column(Float)
     food: Mapped["Food"] = relationship(lazy="joined")
     __table_args__ = (CheckConstraint("quantity_g > 0 AND quantity_g <= 10000"),)
+
+class Goal(Base):
+    __tablename__ = "goals"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    calories: Mapped[float] = mapped_column(Float)
+    protein: Mapped[float] = mapped_column(Float)
+    carbs: Mapped[float] = mapped_column(Float)
+    fat: Mapped[float] = mapped_column(Float)
