@@ -77,5 +77,3 @@ No diretório `frontend`, execute `npm run build` para validar a compilação.
 ## AC3 — Resumo e metas
 A aba **Resumo e metas** soma calorias e macronutrientes das refeições por data e compara com metas pessoais salvas no banco. Os alimentos usam valores nutricionais **por 100 g**.
 
-- [Regras e testes da AC3](docs/AC3.md)
-- [Roteiro do vídeo e checklist de entrega](docs/ROTEIRO_FINAL.md)
